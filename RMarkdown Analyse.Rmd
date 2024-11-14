@@ -1,0 +1,154 @@
+---
+title: "RMarkdown Analyse"
+output: html_document
+date: "2024-11-14"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# question 2: Création d’un Rapport d’Analyse dans un Document RMarkdown
+```{r}
+# charger les données TitanicSurvival 
+library(carData)
+data("TitanicSurvival")
+```
+
+
+```{r}
+# Afficher un résumé statistique des données
+summary(TitanicSurvival)
+str(TitanicSurvival)
+
+```
+
+
+```{r}
+# Charger les packages nécessaires
+
+library(MASS)
+library(ggplot2)
+library(dplyr)
+```
+
+
+```{r}
+# Nettoyer les données (supprimer les NA dans les colonnes nécessaires)
+TitanicSurvival_clean <- TitanicSurvival %>%
+  filter(!is.na(survived) & !is.na(sex) & !is.na(passengerClass)) %>%  # Retirer les lignes avec NA
+  mutate(
+    survived = factor(survived, levels = c("no", "yes"), labels = c("Non-survivant", "Survivant")),  # Convertir 'survived' en facteur
+    sex = factor(sex, levels = c("male", "female")),  # Assurer que 'sex' est aussi un facteur
+    passengerClass = factor(passengerClass, levels = c("1st", "2nd", "3rd"))  # Assurer l'ordre des classes
+  )
+```
+
+
+```{r}
+# Charger les données TitanicSurvival
+library(carData)
+data("TitanicSurvival")
+
+# Créer un tableau d'effectifs pour la répartition des survivants en fonction du sexe
+table_sex_survived <- table(TitanicSurvival$sex, TitanicSurvival$survived)
+
+# Calculer les fréquences (en pourcentage) pour chaque cellule du tableau
+table_sex_survived_pct <- prop.table(table_sex_survived) * 100
+
+# Afficher le tableau d'effectifs avec les pourcentages
+cbind(table_sex_survived, "Fréquence (%)" = round(table_sex_survived_pct, 1))
+```
+
+
+```{r}
+# Charger et nettoyer les données
+data_all <- TitanicSurvival %>%
+  filter(!is.na(survived) & !is.na(sex)) %>%  # Filtrer pour garder les données non manquantes
+  mutate(
+    survived = factor(survived, levels = c("no", "yes"), labels = c("Non-survivant", "Survivant")),
+    sex = factor(sex, levels = c("male", "female"))
+  )
+
+# Créer un graphique pour la répartition des survivants et des non-survivants en fonction du sexe
+ggplot(data_all, aes(x = sex, fill = survived)) +
+  geom_bar(position = "dodge") +  # Barres côte à côte pour chaque statut de survie
+  labs(title = "Répartition des passagers en fonction du sexe et du statut de survie",
+       x = "Sexe",
+       y = "Nombre de passagers",
+       fill = "Statut de survie") +
+  scale_fill_manual(values = c("Non-survivant" = "skyblue", "Survivant" = "pink")) +  # Couleurs pour chaque statut de survie
+  theme_minimal()
+
+```
+#L'histogramme montre que le nombre de survivants féminins est supérieur à celui des survivants masculins. et que le nombre de décès est plus important chez les hommes que chez les femmes.
+
+```{r}
+# Charger et nettoyer les données pour ne garder que les survivants
+data_survivors <- TitanicSurvival %>%
+  filter(survived == "yes") %>%  # Filtrer uniquement les survivants
+  mutate(
+    passengerClass = factor(passengerClass, levels = c("1st", "2nd", "3rd"))
+  )
+
+```
+
+```{r}
+# Filtrer uniquement les survivants et compter les effectifs par classe
+tableau_effectifs <- TitanicSurvival %>%
+  filter(survived == "yes") %>%  # Filtrer les survivants
+  group_by(passengerClass) %>%   # Grouper par classe de passagers
+  summarise(effectif = n())      # Compter le nombre de survivants par classe
+
+# Afficher le tableau
+print(tableau_effectifs)
+```
+
+```{r}
+# Créer un graphique pour la répartition des survivants en fonction de la classe
+ggplot(data_survivors, aes(x = passengerClass, fill = passengerClass)) +
+  geom_bar() +  # Barres simples pour chaque classe
+  labs(title = "Répartition des survivants en fonction de la classe",
+       x = "Classe des passagers",
+       y = "Nombre de survivants",
+       fill = "Classe") +
+  scale_fill_manual(values = c("1st" = "#B0E57C", "2nd" = "#D7BDE2", "3rd" = "#FFD1A9")) +  # vert, violet, orange
+  theme_minimal()
+```
+#L'histogramme montre que le nombre de survivants sont majoritairement issus del la 1ère classe, suivi de la 3ème, puis la 2e.
+
+```{r}
+# Créer un boxplot pour visualiser l'âge en fonction de la variable 'survived'
+ggplot(TitanicSurvival_clean, aes(x = survived, y = age, fill = survived)) +
+  geom_boxplot() +
+  labs(title = "Répartition de l'Âge en fonction de la Survie",
+       y = "Âge") +
+  scale_fill_manual(values = c("Non-survivant" = "red", "Survivant" = "green")) +  # Couleurs pour les groupes
+  theme_minimal()
+
+
+```
+#Le boxplot montre que les survivants ont des âges allant de 0 à environ 80 ans, avec une médiane autour de 30 ans, tandis que les non-survivants ont des âges compris entre 0 et 74 ans, avec une médiane autour de 29 ans.
+```{r}
+# Calcul des statistiques descriptives pour l'âge en fonction de la variable "survived"
+library(dplyr)
+
+# Calcul de la moyenne, médiane, min et max de l'âge
+summary_stats <- TitanicSurvival_clean %>%
+  group_by(survived) %>%
+  summarise(
+    Moyenne_Age = mean(age, na.rm = TRUE),
+    Mediane_Age = median(age, na.rm = TRUE),
+    Min_Age = min(age, na.rm = TRUE),
+    Max_Age = max(age, na.rm = TRUE)
+  )
+
+# Afficher le tableau
+print(summary_stats)
+
+
+```
+
+
+
+
