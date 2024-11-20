@@ -154,14 +154,14 @@ print(summary_stats)
 ```{r}
 library(devtools)
 library(dplyr)
-library(TitanicPackage)
+library(titanicpackage)
 library(carData)
 data("TitanicSurvival")
 ```
 
 ```{r}
 # Calcul du taux de survie par classe :
-source("analyse_titanic.R")
+source("TD_reprod.R")
 taux_survie_classe <- calculate_survival_rate_by_class(TitanicSurvival)
 print(taux_survie_classe)
 ```
@@ -171,6 +171,8 @@ print(taux_survie_classe)
 taux_survie_sex <- calculate_survival_rate_by_sex(TitanicSurvival)
 print(taux_survie_sex)
 ```
+
+
 
 
 
